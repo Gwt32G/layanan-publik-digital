@@ -1,0 +1,109 @@
+{% extends "layanan/base.html" %}
+
+{% block hero %}
+{% if not user.is_authenticated %}
+<section class="hero">
+  <div>
+    <h1>Layanan Publik Digital</h1>
+    <p>Ajukan surat secara online dan ambil nomor antrean dari mana saja, tanpa harus datang lebih awal.</p>
+    <div class="fitur">
+      <span>Pengajuan surat online</span>
+      <span>Antrean digital</span>
+      <span>Pantau status secara langsung</span>
+    </div>
+    <div class="aksi">
+      <a class="btn putih" href="{% url 'layanan:register' %}">Daftar Sekarang</a>
+      <a class="btn garis" href="{% url 'login' %}">Masuk</a>
+    </div>
+  </div>
+</section>
+{% endif %}
+{% endblock %}
+
+{% block content %}
+{% if not user.is_authenticated %}
+  {# ===== Pengunjung: cara kerja ===== #}
+  <div class="judul-halaman"><h2>Cara Kerja</h2><p>Tiga langkah mudah untuk mendapatkan layanan.</p></div>
+  <div class="langkah-kerja">
+    <div class="card"><span class="no">1</span><h3>Daftar dan masuk</h3><p>Buat akun warga menggunakan nama pengguna dan email.</p></div>
+    <div class="card"><span class="no">2</span><h3>Ajukan atau antre</h3><p>Isi pengajuan surat atau ambil nomor antrean untuk layanan yang dibutuhkan.</p></div>
+    <div class="card"><span class="no">3</span><h3>Pantau prosesnya</h3><p>Lihat status surat dan posisi antrean Anda secara langsung.</p></div>
+  </div>
+
+{% elif user.is_staff %}
+  {# ===== Dashboard Petugas ===== #}
+  <div class="judul-halaman">
+    <h1>Dashboard Petugas</h1>
+    <p>Selamat bekerja, <strong>{% firstof user.get_full_name user.username %}</strong>. Berikut ringkasan layanan hari ini.</p>
+  </div>
+  <div class="grid">
+    <div class="stat"><div class="angka">{{ jml_diajukan }}</div><small>Surat baru diajukan</small></div>
+    <div class="stat kuning"><div class="angka">{{ jml_diproses }}</div><small>Surat sedang diproses</small></div>
+    <div class="stat aksen"><div class="angka">{{ jml_menunggu }}</div><small>Antrean menunggu hari ini</small></div>
+    <div class="stat hijau"><div class="angka">{{ jml_dipanggil }}</div><small>Sedang dilayani</small></div>
+  </div>
+  <div class="card">
+    <h2>Pengajuan yang Perlu Diproses</h2>
+    <div class="tabel-wrap">
+      <table>
+        <thead><tr><th>Kode</th><th>Pemohon</th><th>Jenis</th><th>Diajukan</th><th></th></tr></thead>
+        <tbody>
+        {% for p in surat_perlu_diproses %}
+          <tr>
+            <td>{{ p.kode }}</td><td>{{ p.pemohon.username }}</td><td>{{ p.jenis }}</td>
+            <td>{{ p.dibuat|date:"d M Y H:i" }}</td>
+            <td><a class="btn kecil" href="{% url 'layanan:kelola_surat_ubah' p.pk %}">Proses</a></td>
+          </tr>
+        {% empty %}
+          <tr><td colspan="5" class="kosong">Tidak ada pengajuan baru. Semua sudah ditangani.</td></tr>
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+  <div class="card">
+    <h2>Akses Cepat</h2>
+    <div class="aksi">
+      <a class="btn" href="{% url 'layanan:kelola_surat' %}">Kelola Surat</a>
+      <a class="btn" href="{% url 'layanan:antrean_panel' %}">Panel Antrean</a>
+      <a class="btn secondary" href="{% url 'layanan:antrean_layar' %}">Layar Antrean</a>
+    </div>
+  </div>
+
+{% else %}
+  {# ===== Dashboard Warga ===== #}
+  <div class="judul-halaman">
+    <h1>Halo, {% firstof user.get_full_name user.username %}</h1>
+    <p>Ajukan surat atau ambil nomor antrean dengan mudah.</p>
+  </div>
+  <div class="card">
+    <div class="aksi" style="margin-top:0">
+      <a class="btn" href="{% url 'layanan:surat_buat' %}">Ajukan Surat</a>
+      <a class="btn secondary" href="{% url 'layanan:antrean_pilih' %}">Ambil Antrean</a>
+    </div>
+  </div>
+  <div class="grid">
+    <div class="stat"><div class="angka">{{ jumlah_surat }}</div><small>Total pengajuan surat</small></div>
+    <div class="stat aksen"><div class="angka">{{ antrean_aktif|length }}</div><small>Antrean aktif hari ini</small></div>
+  </div>
+  <div class="card">
+    <h2>Antrean Aktif</h2>
+    {% for a in antrean_aktif %}
+      <p><strong>{{ a.nomor_tampil }}</strong> &middot; {{ a.layanan.nama }}
+        {% include "layanan/_status.html" with nilai=a.status label=a.get_status_display %}
+        &middot; <a href="{% url 'layanan:antrean_tiket' a.pk %}">Lihat tiket</a></p>
+    {% empty %}
+      <p class="redup">Tidak ada antrean aktif hari ini.</p>
+    {% endfor %}
+  </div>
+  <div class="card">
+    <h2>Pengajuan Terbaru</h2>
+    {% for p in surat_terbaru %}
+      <p><a href="{% url 'layanan:surat_detail' p.pk %}">{{ p.kode }}</a> &middot; {{ p.jenis }}
+        {% include "layanan/_status.html" with nilai=p.status label=p.get_status_display %}</p>
+    {% empty %}
+      <p class="redup">Anda belum pernah mengajukan surat.</p>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

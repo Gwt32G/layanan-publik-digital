@@ -1,0 +1,13 @@
+{% extends "layanan/base.html" %}
+{% block title %}Masuk &middot; Layanan Publik Digital{% endblock %}
+{% block content %}
+<div class="card form-sempit">
+  <h1>Masuk</h1>
+  <p class="redup" style="text-align:center">Gunakan akun Anda untuk melanjutkan.</p>
+  <form method="post">{% csrf_token %}
+    {% include "layanan/_form.html" %}
+    <button class="btn" type="submit" style="width:100%">Masuk</button>
+  </form>
+  <p class="tautan-bawah">Belum punya akun? <a href="{% url 'layanan:register' %}">Daftar di sini</a></p>
+</div>
+{% endblock %}

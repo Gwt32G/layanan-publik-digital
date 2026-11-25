@@ -1,0 +1,40 @@
+{% extends "layanan/base.html" %}
+{% block title %}Pengajuan {{ p.kode }} &middot; Layanan Publik Digital{% endblock %}
+{% block content %}
+<div class="judul-halaman">
+  <h1>Pengajuan {{ p.kode }}</h1>
+  <p>{{ p.jenis }} &middot; {% include "layanan/_status.html" with nilai=p.status label=p.get_status_display %}</p>
+</div>
+
+<div class="card">
+  <h2>Tahapan Proses</h2>
+  <ol class="langkah">
+    <li class="{% if p.status == 'diajukan' %}aktif{% else %}selesai{% endif %}">Diajukan</li>
+    <li class="{% if p.status == 'diproses' %}aktif{% elif p.status == 'selesai' or p.status == 'ditolak' %}selesai{% endif %}">Diproses</li>
+    <li class="{% if p.status == 'selesai' %}selesai{% elif p.status == 'ditolak' %}ditolak{% endif %}">{% if p.status == 'ditolak' %}Ditolak{% else %}Selesai{% endif %}</li>
+  </ol>
+  {% if p.catatan_petugas %}
+    <div class="catatan"><strong>Catatan petugas:</strong> {{ p.catatan_petugas }}</div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Rincian Pengajuan</h2>
+  <dl class="rincian">
+    <dt>Pemohon</dt><dd>{{ p.pemohon.username }}</dd>
+    <dt>NIK</dt><dd>{{ p.nik }}</dd>
+    <dt>Jenis surat</dt><dd>{{ p.jenis }}</dd>
+    <dt>Keperluan</dt><dd>{{ p.keperluan|linebreaksbr }}</dd>
+    <dt>Diajukan</dt><dd>{{ p.dibuat|date:"d M Y H:i" }}</dd>
+    <dt>Diperbarui</dt><dd>{{ p.diperbarui|date:"d M Y H:i" }}</dd>
+  </dl>
+  <div class="aksi">
+    {% if user.is_staff %}
+      <a class="btn" href="{% url 'layanan:kelola_surat_ubah' p.pk %}">Proses Pengajuan</a>
+      <a class="btn secondary" href="{% url 'layanan:kelola_surat' %}">Kembali</a>
+    {% else %}
+      <a class="btn secondary" href="{% url 'layanan:surat_daftar' %}">Kembali</a>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "layanan/base.html" %}
+{% block title %}Profil &middot; Layanan Publik Digital{% endblock %}
+{% block content %}
+<div class="card profil-kepala">
+  <span class="avatar">{{ user.username|slice:":1" }}</span>
+  <div>
+    <h1 style="margin:0">{% firstof user.get_full_name user.username %}</h1>
+    <p style="margin:.25rem 0">@{{ user.username }}
+      <span class="badge {% if user.is_staff %}petugas{% endif %}">{{ peran }}</span></p>
+    <small>Bergabung sejak {{ user.date_joined|date:"d M Y" }}</small>
+  </div>
+</div>
+
+<div class="card">
+  <h2>Ringkasan Akun</h2>
+  {% if user.is_staff %}
+    <p>Akun ini memiliki akses petugas untuk mengelola pengajuan surat dan antrean.</p>
+  {% else %}
+    <div class="grid" style="margin:0">
+      <div class="stat"><div class="angka">{{ jumlah_surat }}</div><small>Pengajuan surat</small></div>
+      <div class="stat aksen"><div class="angka">{{ jumlah_antrean }}</div><small>Antrean diambil</small></div>
+    </div>
+  {% endif %}
+</div>
+
+<div class="card">
+  <h2>Ubah Data Profil</h2>
+  <form method="post">{% csrf_token %}
+    {% include "layanan/_form.html" %}
+    <div class="aksi">
+      <button class="btn" type="submit">Simpan Perubahan</button>
+      <a class="btn secondary" href="{% url 'layanan:beranda' %}">Kembali</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

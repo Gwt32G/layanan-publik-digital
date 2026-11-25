@@ -1,0 +1,30 @@
+{% extends "layanan/base.html" %}
+{% block title %}Surat Saya &middot; Layanan Publik Digital{% endblock %}
+{% block content %}
+<div class="judul-halaman">
+  <h1>Surat Saya</h1>
+  <p>Daftar pengajuan surat yang pernah Anda buat.</p>
+</div>
+<div class="card">
+  <a class="btn" href="{% url 'layanan:surat_buat' %}">+ Ajukan Surat Baru</a>
+  <div class="tabel-wrap" style="margin-top:1rem">
+    <table>
+      <thead><tr><th>Kode</th><th>Jenis surat</th><th>Diajukan</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for p in daftar %}
+        <tr>
+          <td>{{ p.kode }}</td>
+          <td>{{ p.jenis }}</td>
+          <td>{{ p.dibuat|date:"d M Y H:i" }}</td>
+          <td>{% include "layanan/_status.html" with nilai=p.status label=p.get_status_display %}</td>
+          <td><a href="{% url 'layanan:surat_detail' p.pk %}">Detail</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="5" class="kosong">Belum ada pengajuan surat.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "layanan/_paging.html" with halaman=daftar qs="" %}
+</div>
+{% endblock %}

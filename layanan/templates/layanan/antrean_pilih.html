@@ -1,0 +1,49 @@
+{% extends "layanan/base.html" %}
+{% block title %}Ambil Antrean &middot; Layanan Publik Digital{% endblock %}
+{% block content %}
+<div class="judul-halaman">
+  <h1>Ambil Nomor Antrean</h1>
+  <p>Pilih layanan yang Anda butuhkan. Nomor antrean berlaku untuk hari ini.</p>
+</div>
+
+{% for b in daftar_layanan %}
+<div class="card kartu-layanan">
+  <div class="info">
+    <h2 style="margin:0">{{ b.layanan.nama }} <span class="badge">{{ b.layanan.kode }}</span></h2>
+    <small>Sedang dilayani: <strong>{% if b.dipanggil %}{{ b.dipanggil.nomor_tampil }}{% else %}-{% endif %}</strong> &middot; Menunggu: <strong>{{ b.menunggu }}</strong></small>
+  </div>
+  <form method="post" action="{% url 'layanan:antrean_ambil' b.layanan.pk %}">{% csrf_token %}
+    <button class="btn" type="submit">Ambil Nomor</button>
+  </form>
+</div>
+{% empty %}
+<div class="card"><p class="kosong">Belum ada layanan yang tersedia.</p></div>
+{% endfor %}
+
+<div class="card">
+  <h2>Antrean Saya Hari Ini</h2>
+  <div class="tabel-wrap">
+    <table>
+      <thead><tr><th>Nomor</th><th>Layanan</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for a in saya %}
+        <tr>
+          <td><a href="{% url 'layanan:antrean_tiket' a.pk %}"><strong>{{ a.nomor_tampil }}</strong></a></td>
+          <td>{{ a.layanan.nama }}</td>
+          <td>{% include "layanan/_status.html" with nilai=a.status label=a.get_status_display %}</td>
+          <td>
+            {% if a.status == "menunggu" %}
+              <form method="post" action="{% url 'layanan:antrean_batal' a.pk %}" style="margin:0">{% csrf_token %}
+                <button class="btn danger kecil" type="submit">Batalkan</button>
+              </form>
+            {% endif %}
+          </td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="4" class="kosong">Belum ada antrean hari ini.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

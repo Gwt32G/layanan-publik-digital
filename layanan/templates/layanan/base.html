@@ -1,0 +1,84 @@
+{% load static %}<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Layanan Publik Digital{% endblock %}</title>
+  <link rel="stylesheet" href="{% static 'layanan/style.css' %}">
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+{% url 'layanan:beranda' as u_beranda %}
+{% with nama_url=request.resolver_match.url_name %}
+<div class="overlay" id="overlay"></div>
+
+<aside class="drawer" id="drawer" aria-label="Menu utama">
+  <div class="drawer-kepala">
+    {% if user.is_authenticated %}
+      <span class="avatar">{{ user.username|slice:":1" }}</span>
+      <div>
+        <strong>{% firstof user.get_full_name user.username %}</strong>
+        <small>{% if user.is_staff %}Petugas{% else %}Warga{% endif %}</small>
+      </div>
+    {% else %}
+      <div><strong>Layanan Publik Digital</strong><small>Silakan masuk atau daftar</small></div>
+    {% endif %}
+  </div>
+  <nav>
+    <a href="{{ u_beranda }}" {% if nama_url == "beranda" %}class="aktif"{% endif %}>{% if user.is_authenticated %}Dashboard{% else %}Beranda{% endif %}</a>
+    {% if user.is_authenticated %}
+      <div class="judul-grup">{% if user.is_staff %}Menu Petugas{% else %}Menu Warga{% endif %}</div>
+      {% if user.is_staff %}
+        <a href="{% url 'layanan:kelola_surat' %}" {% if nama_url == "kelola_surat" or nama_url == "kelola_surat_ubah" %}class="aktif"{% endif %}>Kelola Surat</a>
+        <a href="{% url 'layanan:antrean_panel' %}" {% if nama_url == "antrean_panel" %}class="aktif"{% endif %}>Panel Antrean</a>
+      {% else %}
+        <a href="{% url 'layanan:surat_daftar' %}" {% if nama_url == "surat_daftar" or nama_url == "surat_buat" or nama_url == "surat_detail" %}class="aktif"{% endif %}>Surat Saya</a>
+        <a href="{% url 'layanan:antrean_pilih' %}" {% if nama_url == "antrean_pilih" or nama_url == "antrean_tiket" %}class="aktif"{% endif %}>Ambil Antrean</a>
+      {% endif %}
+      <a href="{% url 'layanan:antrean_layar' %}" {% if nama_url == "antrean_layar" %}class="aktif"{% endif %}>Layar Antrean</a>
+      <div class="pemisah"></div>
+      <a href="{% url 'layanan:profil' %}" {% if nama_url == "profil" %}class="aktif"{% endif %}>Profil</a>
+      <form method="post" action="{% url 'logout' %}" style="margin:0">{% csrf_token %}<button type="submit">Keluar</button></form>
+    {% else %}
+      <a href="{% url 'layanan:antrean_layar' %}" {% if nama_url == "antrean_layar" %}class="aktif"{% endif %}>Layar Antrean</a>
+      <div class="pemisah"></div>
+      <a href="{% url 'login' %}">Masuk</a>
+      <a href="{% url 'layanan:register' %}">Daftar</a>
+    {% endif %}
+  </nav>
+</aside>
+{% endwith %}
+
+<header class="topbar">
+  <button class="hamburger" id="tombol-menu" type="button" aria-label="Buka menu"><span></span><span></span><span></span></button>
+  <a class="brand" href="{{ u_beranda }}">Layanan Publik Digital</a>
+  <span class="spacer"></span>
+  {% if user.is_authenticated %}
+    <a class="profil-chip" href="{% url 'layanan:profil' %}">
+      <span class="avatar">{{ user.username|slice:":1" }}</span>
+      <span class="chip-teks"><strong>{% firstof user.get_full_name user.username %}</strong><small>{% if user.is_staff %}Petugas{% else %}Warga{% endif %}</small></span>
+    </a>
+  {% else %}
+    <a class="btn-masuk" href="{% url 'login' %}">Masuk</a>
+  {% endif %}
+</header>
+
+{% block hero %}{% endblock %}
+<main>
+  {% for m in messages %}<div class="msg {{ m.tags }}">{{ m }}</div>{% endfor %}
+  {% block content %}{% endblock %}
+</main>
+
+<footer class="footer">&copy; {% now "Y" %} Layanan Publik Digital &middot; Proyek Mata Kuliah Manajemen Proyek TI</footer>
+
+<script>
+  (function () {
+    var body = document.body;
+    function atur(buka) { body.classList.toggle("menu-terbuka", buka); }
+    document.getElementById("tombol-menu").addEventListener("click", function () { atur(!body.classList.contains("menu-terbuka")); });
+    document.getElementById("overlay").addEventListener("click", function () { atur(false); });
+    document.addEventListener("keydown", function (e) { if (e.key === "Escape") atur(false); });
+  })();
+</script>
+</body>
+</html>

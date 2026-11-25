@@ -1,0 +1,7 @@
+{% if halaman.paginator.num_pages > 1 %}
+<div class="paging">
+  {% if halaman.has_previous %}<a href="?{% if qs %}{{ qs }}&amp;{% endif %}page={{ halaman.previous_page_number }}">&laquo; Sebelumnya</a>{% endif %}
+  <span>Halaman {{ halaman.number }} dari {{ halaman.paginator.num_pages }}</span>
+  {% if halaman.has_next %}<a href="?{% if qs %}{{ qs }}&amp;{% endif %}page={{ halaman.next_page_number }}">Berikutnya &raquo;</a>{% endif %}
+</div>
+{% endif %}

@@ -1,0 +1,31 @@
+{% extends "layanan/base.html" %}
+{% block title %}Tiket {{ a.nomor_tampil }} &middot; Layanan Publik Digital{% endblock %}
+{% block head_extra %}<meta http-equiv="refresh" content="15">{% endblock %}
+{% block content %}
+<div class="card tiket">
+  <p class="redup" style="margin:0">{{ a.layanan.nama }} &middot; {{ a.tanggal|date:"d M Y" }}</p>
+  <div class="nomor">{{ a.nomor_tampil }}</div>
+  <p>{% include "layanan/_status.html" with nilai=a.status label=a.get_status_display %}</p>
+
+  {% if a.status != "batal" %}
+  <ol class="langkah">
+    <li class="{% if a.status == 'menunggu' %}aktif{% else %}selesai{% endif %}">Menunggu</li>
+    <li class="{% if a.status == 'dipanggil' %}aktif{% elif a.status == 'selesai' %}selesai{% endif %}">Dipanggil</li>
+    <li class="{% if a.status == 'selesai' %}selesai{% endif %}">Selesai</li>
+  </ol>
+  {% endif %}
+
+  {% if a.status == "menunggu" %}
+    <p>Antrean di depan Anda: <strong>{{ a.jumlah_di_depan }}</strong></p>
+    <p class="redup">Halaman ini diperbarui otomatis setiap 15 detik.</p>
+  {% elif a.status == "dipanggil" %}
+    <p class="pesan-giliran">Giliran Anda! Silakan menuju loket.</p>
+  {% elif a.status == "batal" %}
+    <p class="redup">Antrean ini telah dibatalkan.</p>
+  {% endif %}
+
+  <div class="aksi" style="justify-content:center">
+    <a class="btn secondary" href="{% if user.is_staff %}{% url 'layanan:antrean_panel' %}{% else %}{% url 'layanan:antrean_pilih' %}{% endif %}">Kembali</a>
+  </div>
+</div>
+{% endblock %}

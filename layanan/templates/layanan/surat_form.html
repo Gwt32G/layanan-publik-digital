@@ -1,0 +1,17 @@
+{% extends "layanan/base.html" %}
+{% block title %}Ajukan Surat &middot; Layanan Publik Digital{% endblock %}
+{% block content %}
+<div class="judul-halaman">
+  <h1>Ajukan Surat</h1>
+  <p>Lengkapi data berikut. Pengajuan akan diproses oleh petugas.</p>
+</div>
+<div class="card">
+  <form method="post">{% csrf_token %}
+    {% include "layanan/_form.html" %}
+    <div class="aksi">
+      <button class="btn" type="submit">Kirim Pengajuan</button>
+      <a class="btn secondary" href="{% url 'layanan:surat_daftar' %}">Batal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

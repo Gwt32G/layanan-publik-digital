@@ -1,0 +1,27 @@
+{% extends "layanan/base.html" %}
+{% block title %}Proses {{ p.kode }} &middot; Layanan Publik Digital{% endblock %}
+{% block content %}
+<div class="judul-halaman">
+  <h1>Proses Pengajuan {{ p.kode }}</h1>
+  <p>{{ p.jenis }} &middot; {% include "layanan/_status.html" with nilai=p.status label=p.get_status_display %}</p>
+</div>
+<div class="card">
+  <h2>Data Pemohon</h2>
+  <dl class="rincian">
+    <dt>Pemohon</dt><dd>{{ p.pemohon.username }}</dd>
+    <dt>NIK</dt><dd>{{ p.nik }}</dd>
+    <dt>Keperluan</dt><dd>{{ p.keperluan|linebreaksbr }}</dd>
+    <dt>Diajukan</dt><dd>{{ p.dibuat|date:"d M Y H:i" }}</dd>
+  </dl>
+</div>
+<div class="card">
+  <h2>Perbarui Status</h2>
+  <form method="post">{% csrf_token %}
+    {% include "layanan/_form.html" %}
+    <div class="aksi">
+      <button class="btn" type="submit">Simpan</button>
+      <a class="btn secondary" href="{% url 'layanan:kelola_surat' %}">Batal</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

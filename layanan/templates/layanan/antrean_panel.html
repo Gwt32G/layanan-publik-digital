@@ -1,0 +1,38 @@
+{% extends "layanan/base.html" %}
+{% block title %}Panel Antrean &middot; Layanan Publik Digital{% endblock %}
+{% block content %}
+<div class="judul-halaman">
+  <h1>Panel Antrean</h1>
+  <p>Panggil dan selesaikan antrean untuk setiap layanan hari ini.</p>
+</div>
+
+{% for b in baris %}
+<div class="card">
+  <div class="kartu-layanan">
+    <div class="info">
+      <h2 style="margin:0">{{ b.layanan.nama }} <span class="badge">{{ b.layanan.kode }}</span></h2>
+      <p style="margin:.4rem 0 0">Sedang dilayani:
+        {% if b.dipanggil %}<strong>{{ b.dipanggil.nomor_tampil }}</strong> ({{ b.dipanggil.pengguna.username }}){% else %}<span class="redup">-</span>{% endif %}
+        &middot; Menunggu: <strong>{{ b.menunggu }}</strong></p>
+    </div>
+    {% if b.dipanggil %}
+      <form method="post" action="{% url 'layanan:antrean_selesai' b.dipanggil.pk %}">{% csrf_token %}
+        <button class="btn" type="submit">Selesai Dilayani</button>
+      </form>
+    {% else %}
+      <form method="post" action="{% url 'layanan:antrean_panggil' b.layanan.pk %}">{% csrf_token %}
+        <button class="btn" type="submit" {% if not b.menunggu %}disabled style="opacity:.5;cursor:not-allowed"{% endif %}>Panggil Berikutnya</button>
+      </form>
+    {% endif %}
+  </div>
+  {% if b.daftar_tunggu %}
+    <ul class="daftar-tunggu">
+      {% for t in b.daftar_tunggu %}<li>{{ t.nomor_tampil }} &middot; {{ t.pengguna.username }}</li>{% endfor %}
+      {% if b.menunggu > 5 %}<li>dan {{ b.menunggu|add:"-5" }} antrean lainnya</li>{% endif %}
+    </ul>
+  {% endif %}
+</div>
+{% empty %}
+<div class="card"><p class="kosong">Belum ada layanan aktif. Tambahkan lewat halaman admin.</p></div>
+{% endfor %}
+{% endblock %}

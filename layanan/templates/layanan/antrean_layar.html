@@ -1,0 +1,26 @@
+{% extends "layanan/base.html" %}
+{% block title %}Layar Antrean &middot; Layanan Publik Digital{% endblock %}
+{% block head_extra %}<meta http-equiv="refresh" content="10">{% endblock %}
+{% block hero %}
+<section class="layar">
+  <h1>Layar Antrean</h1>
+  <p class="sub">Diperbarui otomatis &middot; {% now "d M Y" %}</p>
+  <div class="kisi">
+    {% for b in baris %}
+    <div class="loket">
+      <h2>{{ b.layanan.nama }}</h2>
+      {% if b.dipanggil %}
+        <div class="nomor">{{ b.dipanggil.nomor_tampil }}</div>
+        <small>Silakan menuju loket</small>
+      {% else %}
+        <div class="nomor kosong-nomor">-</div>
+        <small>Belum ada panggilan</small>
+      {% endif %}
+      <p style="margin:.75rem 0 0"><small>Menunggu: {{ b.menunggu }}</small></p>
+    </div>
+    {% empty %}
+    <p style="text-align:center">Belum ada layanan aktif.</p>
+    {% endfor %}
+  </div>
+</section>
+{% endblock %}

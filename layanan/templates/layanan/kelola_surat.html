@@ -1,0 +1,40 @@
+{% extends "layanan/base.html" %}
+{% block title %}Kelola Surat &middot; Layanan Publik Digital{% endblock %}
+{% block content %}
+<div class="judul-halaman">
+  <h1>Kelola Surat</h1>
+  <p>Cari dan proses pengajuan surat dari warga.</p>
+</div>
+<div class="card">
+  <form method="get" class="filter">
+    <input type="text" name="q" value="{{ q }}" placeholder="Cari nama pengguna, NIK, jenis surat, atau nomor">
+    <select name="status">
+      <option value="">Semua status</option>
+      {% for v, l in pilihan_status %}<option value="{{ v }}" {% if v == status %}selected{% endif %}>{{ l }}</option>{% endfor %}
+    </select>
+    <button class="btn" type="submit">Cari</button>
+    {% if q or status %}<a class="btn secondary" href="{% url 'layanan:kelola_surat' %}">Atur ulang</a>{% endif %}
+  </form>
+  <p class="redup">Menampilkan {{ daftar.paginator.count }} pengajuan.</p>
+  <div class="tabel-wrap">
+    <table>
+      <thead><tr><th>Kode</th><th>Pemohon</th><th>Jenis surat</th><th>Diajukan</th><th>Status</th><th></th></tr></thead>
+      <tbody>
+      {% for p in daftar %}
+        <tr>
+          <td><a href="{% url 'layanan:surat_detail' p.pk %}">{{ p.kode }}</a></td>
+          <td>{{ p.pemohon.username }}</td>
+          <td>{{ p.jenis }}</td>
+          <td>{{ p.dibuat|date:"d M Y H:i" }}</td>
+          <td>{% include "layanan/_status.html" with nilai=p.status label=p.get_status_display %}</td>
+          <td><a class="btn kecil" href="{% url 'layanan:kelola_surat_ubah' p.pk %}">Proses</a></td>
+        </tr>
+      {% empty %}
+        <tr><td colspan="6" class="kosong">Tidak ada pengajuan yang sesuai.</td></tr>
+      {% endfor %}
+      </tbody>
+    </table>
+  </div>
+  {% include "layanan/_paging.html" with halaman=daftar %}
+</div>
+{% endblock %}
